@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class StreamsAllExamples {
 
 	public static void main(String[] args) {
-		
+
 		List<String> listOf = loadEmployees().stream().filter(i -> i.id == 133)
 				.map(i -> i.getName() + "--" + i.getSalary()).collect(Collectors.toList());
 		System.out.println(listOf);
@@ -48,10 +48,23 @@ public class StreamsAllExamples {
 			System.out.println("Key: " + mapl.getKey() + ", Value: " + mapl.getValue());
 
 		}
-     // get only departmentNames
+
+		// get only departmentNames
 		loadEmployees().stream().map(Employee::getDepartment).distinct().forEach(i -> System.out.println(i));
 
-		loadEmployees().stream().map(e-> e.age ).distinct().forEach(e->System.out.println(e));
+		// get the age of employees without duplicate age
+		loadEmployees().stream().map(e -> e.age).distinct().forEach(e -> System.out.println(e));
+
+		// What is the average age of male and female employees?
+		Map<String, Double> averageofAge = loadEmployees().stream()
+				.collect(Collectors.groupingBy(Employee::getGender, Collectors.averagingDouble(Employee::getAge)));
+		System.out.println("averageofAge-- " + averageofAge);
+
+		// What is the average age of male and female employees?
+		Map<String, Double> averageOfSalary = loadEmployees().stream()
+				.collect(Collectors.groupingBy(Employee::getGender, Collectors.averagingDouble(Employee::getSalary)));
+		System.out.println("averageOfSalary - "+averageOfSalary);
+
 	}
 
 	private static List<Employee> loadEmployees() {
