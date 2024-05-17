@@ -5,6 +5,7 @@ import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.streams.employee.data.loadEmployeesData;
@@ -48,7 +49,7 @@ public class StreamsAllExamples {
 		// how many departments
 		Map<String, Long> departmentList = loadEmployeesData.loadEmployees().stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
-		
+
 		for (Entry<String, Long> mapl : departmentList.entrySet()) {
 			System.out.println("Key: " + mapl.getKey() + ", Value: " + mapl.getValue());
 		}
@@ -70,6 +71,32 @@ public class StreamsAllExamples {
 				.collect(Collectors.groupingBy(Employee::getGender, Collectors.averagingDouble(Employee::getSalary)));
 		System.out.println("averageOfSalary - " + averageOfSalary);
 
-	}
+		// print the name of all departments in the organization
+		Map<String, Long> countDepartment = loadEmployeesData.loadEmployees().stream()
+				.collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
 
+		System.out.println("countDepartment --" + countDepartment);
+
+		// get the details of highest paid employee
+		Optional<Employee> maxSalary = loadEmployeesData.loadEmployees().stream()
+				.collect(Collectors.maxBy(Comparator.comparing(i -> i.getSalary())));
+		if (maxSalary.isPresent()) {
+			System.out.println(maxSalary.get().name);
+
+			// get the name of all employees who joined after 2015
+			loadEmployeesData.loadEmployees().stream().filter(i -> i.getYearOfJoining() > 2015).map(i -> i.getName())
+					.forEach(i -> System.out.println("employees names who joined after 2015 -- " + i));
+
+			// count the number of employees in each department
+			Map<String, Long> departmentNumbers = loadEmployeesData.loadEmployees().stream()
+					.collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
+			System.out.println(departmentNumbers);
+
+			// what is the average salary of each department
+			Map<String, Double> avgOfEachDepartment = loadEmployeesData.loadEmployees().stream().collect(
+					Collectors.groupingBy(Employee::getDepartment, Collectors.averagingDouble(Employee::getSalary)));
+			System.out.println("avgOfEachDepartment -" + avgOfEachDepartment);
+
+		}
+	}
 }
