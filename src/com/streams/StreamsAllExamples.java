@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.streams.employee.data.loadEmployeesData;
@@ -40,19 +39,19 @@ public class StreamsAllExamples {
 			System.out.println("----------" + youngestMale.get().getName());
 			System.out.println("----------" + youngestMale);
 		}
-		
+
 		// Average of salary
 		Double averageSalary = loadEmployeesData.loadEmployees().stream()
 				.collect(Collectors.averagingDouble(i -> i.salary));
 		System.out.println("averageSalary -- " + averageSalary);
 
-		//how has the most working experience in the organization
+		// how has the most working experience in the organization
 		Optional<Employee> mostWorkExperience = loadEmployeesData.loadEmployees().stream()
-		.collect(Collectors.minBy(Comparator.comparing(Employee::getYearOfJoining)));
-		if(mostWorkExperience.isPresent()) {
-			System.out.println("-----  mostWorkExperience ----- "+mostWorkExperience.get());
+				.collect(Collectors.minBy(Comparator.comparing(Employee::getYearOfJoining)));
+		if (mostWorkExperience.isPresent()) {
+			System.out.println("-----  mostWorkExperience ----- " + mostWorkExperience.get());
 		}
-		
+
 		// sum of salary
 		DoubleSummaryStatistics summ = loadEmployeesData.loadEmployees().stream()
 				.collect(Collectors.summarizingDouble(i -> i.salary + 2));
@@ -114,6 +113,48 @@ public class StreamsAllExamples {
 					Collectors.groupingBy(Employee::getDepartment, Collectors.averagingDouble(Employee::getSalary)));
 			System.out.println("avgOfEachDepartment -" + avgOfEachDepartment);
 
+			// how many male and female employees in the Product Development team
+			Map<String, Long> productDevelopment = loadEmployeesData.loadEmployees().stream()
+					.filter(i -> i.getDepartment().equals("Product Development"))
+					.collect(Collectors.groupingBy(Employee::getGender, Collectors.counting()));
+			System.out.println(productDevelopment);
+
+			// what is the average salary of male and female employees
+			Map<String, Double> aveSalary = loadEmployeesData.loadEmployees().stream().collect(
+					Collectors.groupingBy(Employee::getGender, Collectors.averagingDouble(Employee::getSalary)));
+			System.out.println(aveSalary);
+
+			// List down the names of all employees in each department
+			Map<String, List<String>> collect = loadEmployeesData.loadEmployees().stream().collect(Collectors
+					.groupingBy(Employee::getDepartment, Collectors.mapping(Employee::getName, Collectors.toList())));
+			System.out.println(collect);
+
+			// what is the average salary and total salary of the whole organization
+			DoubleSummaryStatistics summaryStatics = loadEmployeesData.loadEmployees().stream()
+					.mapToDouble(Employee::getSalary).summaryStatistics();
+			double avg = summaryStatics.getAverage();
+			double total = summaryStatics.getSum();
+			System.out.println("average salary of whole department -" + avg);
+			System.out.println("total salary of whole department -" + total);
+
+			// Separate the employees who are younger or equal to 25 years from those
+			// employees who are older then 25 years
+
+			Map<Boolean, List<Employee>> separate = loadEmployeesData.loadEmployees().stream()
+					.collect(Collectors.partitioningBy(i -> i.getAge() <= 25));
+			List<Employee> younger = separate.get(true);
+			List<Employee> older = separate.get(false);
+
+			younger.forEach(i -> System.out.println(i.getName() + " - " + i.getAge() + " - " + i.getDepartment()));
+			System.out.println("------");
+			older.forEach(i -> System.out.println(i.getName() + " - " + i.getAge() + " - " + i.getDepartment()));
+
+			// who is the oldest employee in the organization
+			Optional<Employee> oldest = loadEmployeesData.loadEmployees().stream()
+					.collect(Collectors.maxBy(Comparator.comparing(Employee::getAge)));
+			if (oldest.isPresent()) {
+				System.out.println(oldest.get());
+			}
 		}
 	}
 }
