@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.streams.employee.data.loadEmployeesData;
@@ -31,11 +32,27 @@ public class StreamsAllExamples {
 		loadEmployeesData.loadEmployees().stream().collect(Collectors.minBy(Comparator.comparing(i -> i.salary)))
 				.map(i -> i.getName() + "--" + i.getSalary()).ifPresent(i -> System.out.println("min salary" + i));
 
+		// youngest male employee in the product development
+		Optional<Employee> youngestMale = loadEmployeesData.loadEmployees().stream()
+				.filter(i -> i.getDepartment() == "Product Development").filter(i -> i.getGender() == "Male")
+				.collect(Collectors.minBy(Comparator.comparing(Employee::getAge)));
+		if (youngestMale.isPresent()) {
+			System.out.println("----------" + youngestMale.get().getName());
+			System.out.println("----------" + youngestMale);
+		}
+		
 		// Average of salary
 		Double averageSalary = loadEmployeesData.loadEmployees().stream()
 				.collect(Collectors.averagingDouble(i -> i.salary));
 		System.out.println("averageSalary -- " + averageSalary);
 
+		//how has the most working experience in the organization
+		Optional<Employee> mostWorkExperience = loadEmployeesData.loadEmployees().stream()
+		.collect(Collectors.minBy(Comparator.comparing(Employee::getYearOfJoining)));
+		if(mostWorkExperience.isPresent()) {
+			System.out.println("-----  mostWorkExperience ----- "+mostWorkExperience.get());
+		}
+		
 		// sum of salary
 		DoubleSummaryStatistics summ = loadEmployeesData.loadEmployees().stream()
 				.collect(Collectors.summarizingDouble(i -> i.salary + 2));
